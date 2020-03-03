@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="JS/highmaps.js"></script>
+<script src="JS/jquery-3.4.1.min.js"></script>
+<body>
+<div id="container" style="height:600px; width: 75%; border: black 1px solid;border-radius: 10px"></div>
+</body>
+<script>
+    Highcharts.setOptions({
+        lang: {
+            drillUpText: '< 返回 “{series.name}”'
+        }
+    });
+    var map = null,
+        geochina = 'https://data.jianshukeji.com/jsonp?filename=geochina/';
+    $.ajax({
+        type: "get",//请求方式
+        url: "data/heal_data.json",//地址，就是json文件的请求路径
+        dataType: "json",//数据类型可以为 text xml json  script  jsonp
+        async: false,
+        success: function(data){//返回的参数就是 action里面所有的有get和set方法的参数
+            $.ajax({
+                type: "get",//请求方式
+                url: geochina + 'china.json&callback=?',//地址，就是json文件的请求路径
+                dataType: "json",//数据类型可以为 text xml json  script  jsonp
+                async: false,
+                success: function(mapdata){//返回的参数就是 action里面所有的有get和set方法的参数
+                    map = new Highcharts.Map('container', {
+                        credits:{
+                            enabled:false
+                        },
+                        title: {
+                            text: '中国疫情治愈率地图'
+                        },
+                        mapNavigation: {
+                            enabled: true,
+                        },
+                        tooltip: {
+                            valueSuffix: '%'
+                        },
+                        colorAxis: {
+                            dataClasses: [{
+                                to: 0
+                            }, {
+                                from: 0,
+                                to: 70
+                            }, {
+                                from: 70,
+                                to: 80
+                            }, {
+                                from: 80,
+                                to: 90
+                            }, {
+                                from: 90
+                            }],
+                            minColor: '#fff',
+                            maxColor: '#00b894',
+                        },
+                        legend: {
+                            align: 'left',
+                            verticalAlign: 'bottom',
+                            floating: true,
+                            layout: 'vertical',
+                            valueDecimals: 0,
+                            symbolRadius: 0,
+                            symbolHeight: 14
+                        },
+
+                        series: [{
+                            data: data,
+                            mapData: mapdata,
+                            joinBy: 'name',
+                            name: '中国地图',
+                            states: {
+                                hover: {
+                                    color: '#718093'
+                                }
+                            }
+                        }]
+                    });
+                }
+            });
+        }
+    });
+
+</script>
+</html>
